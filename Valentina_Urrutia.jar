@@ -1,0 +1,95 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+ */
+package exp3_s8_valentina_urrutia;
+
+/**
+ *
+ * @author vurru
+ */
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Valentina_Urrutia {
+    public static void main(String[] args) {
+        TeatroMoro teatroMoro = new TeatroMoro(200, 70);
+        teatroMoro.getClientes().add("Cliente 1");
+        teatroMoro.getClientes().add("Cliente 2");
+        teatroMoro.getPromociones().add(new TeatroMoro.Promocion(0.10)); 
+        teatroMoro.getPromociones().add(new TeatroMoro.Promocion(0.15)); 
+
+        teatroMoro.venderEntrada(1, 0); 
+        teatroMoro.venderEntrada(2, 1); 
+
+        double precioFinal1 = teatroMoro.aplicarDescuento(TeatroMoro.PRECIO_BASE, false, true); 
+        double precioFinal2 = teatroMoro.aplicarDescuento(TeatroMoro.PRECIO_BASE, true, false); 
+
+        System.out.println("Precio final para Cliente 1: $" + precioFinal1);
+        System.out.println("Precio final para Cliente 2: $" + precioFinal2);
+    }
+}
+
+class TeatroMoro {
+    public static final double PRECIO_BASE = 10000.0;
+    private int[][] ventas;
+    private boolean[] asientos;
+    private List<String> clientes;
+    private List<Promocion> promociones;
+
+    public TeatroMoro(int numAsientos, int numVentas) {
+        ventas = new int[numVentas][3];
+        asientos = new boolean[numAsientos];
+        clientes = new ArrayList<>();
+        promociones = new ArrayList<>();
+    }
+
+    public void venderEntrada(int idVenta, int indiceCliente) {
+        int asiento = encontrarAsientoDisponible();
+        ventas[idVenta][0] = idVenta;
+        ventas[idVenta][1] = asiento;
+        ventas[idVenta][2] = indiceCliente;
+        asientos[asiento] = true;
+    }
+
+    public double aplicarDescuento(double precioBase, boolean esEstudiante, boolean esTerceraEdad) {
+        double precioFinal = precioBase;
+        for (Promocion promocion : promociones) {
+            precioFinal = promocion.aplicar(precioFinal, esEstudiante, esTerceraEdad);
+        }
+        return precioFinal;
+    }
+
+    private int encontrarAsientoDisponible() {
+        for (int i = 0; i < asientos.length; i++) {
+            if (!asientos[i]) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public List<String> getClientes() {
+        return clientes;
+    }
+
+    public List<Promocion> getPromociones() {
+        return promociones;
+    }
+
+    static class Promocion {
+        private double descuento;
+
+        public Promocion(double descuento) {
+            this.descuento = descuento;
+        }
+
+        public double aplicar(double precioBase, boolean esEstudiante, boolean esTerceraEdad) {
+            if (esEstudiante || esTerceraEdad) {
+                return precioBase * (1 - descuento);
+            }
+            return precioBase;
+        }
+    }
+}
